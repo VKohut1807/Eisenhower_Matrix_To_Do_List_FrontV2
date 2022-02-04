@@ -1,12 +1,12 @@
 <template>
-  <v-list-item @click="task.completed = !task.completed">
+  <v-list-item>
     <v-list-item-action>
-      <v-switch v-model="task.completed" inset></v-switch>
+      <v-switch disabled v-model="task.completed" inset></v-switch>
     </v-list-item-action>
     <v-row class="d-flex flex-column pa-3">
       <div class="d-flex justify-space-between">
         <v-list-item-content>
-          <div class="overline">{{ task.id }}</div>
+          <div class="overline">{{ task._id }}</div>
           <h2 class="headline mb-1 overflow-x-auto">{{ task.name }}</h2>
           <p class="ma-0">{{ task.description }}</p>
           <v-spacer></v-spacer>
@@ -50,7 +50,8 @@
           />
         </v-dialog>
         <v-btn
-          @click="$emit('deleteTask', task.id)"
+          v-on:click="task.completed = !task.completed"
+          @click="$emit('deleteTask', task._id)"
           text
           color="error"
           class="px-0"
