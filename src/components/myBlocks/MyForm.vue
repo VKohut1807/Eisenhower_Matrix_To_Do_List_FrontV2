@@ -80,7 +80,13 @@
         >
           Send
         </v-btn>
-        <v-btn v-else :disabled="!valid" @click="replace" color="success" text>
+        <v-btn
+          v-else
+          :disabled="!valid"
+          @click="replace()"
+          color="success"
+          text
+        >
           Replace
         </v-btn>
       </v-card-actions>
@@ -147,12 +153,12 @@ export default {
     send() {
       if (this.$refs.form.validate()) {
         const newTask = {
-          id: Date.now(),
+          _id: Date.now(),
           name: this.task.name,
           description: this.task.description,
           completed: false,
           quadrant: this.task.quadrant,
-          date: new Date().toLocaleString(),
+          date: new Date().toLocaleString("en-GB"),
           avatar: {
             name: this.task.avatar.name,
             type: this.task.avatar.type,

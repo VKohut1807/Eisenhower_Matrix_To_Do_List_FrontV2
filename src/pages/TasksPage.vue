@@ -18,6 +18,7 @@
 import TasksList from "@/components/TasksList.vue";
 import MyScrollBtn from "@/components/myBlocks/MyScrollBtn.vue";
 import MyLoader from "@/components/myBlocks/MyLoader.vue";
+const API_URL = "http://localhost:4000/tasks";
 
 export default {
   components: { TasksList, MyLoader, MyScrollBtn },
@@ -60,35 +61,59 @@ export default {
     },
   }),
   mounted() {
-    this.fetchTasksList();
+    this.tasksList();
   },
+
   methods: {
-    addTask(newTask) {
-      this.tasks.push(newTask);
-    },
-
-    replaceTask(changedTask) {
-      this.tasks.filter((task) => {
-        if (task.id == changedTask.id) {
-          if (changedTask.avatar !== null) {
-            changedTask = changedTask;
+    async tasksList() {
+      this.axios
+        .get(API_URL)
+        .then((res) => {
+          console.log(res.data);
+          this.loading = false;
+          if (!res.data.length == 0) {
+            this.tasks = res.data;
           } else {
-            changedTask.avatar = {
-              avatar: {
-                name: "",
-                type: "",
-                size: 0,
-                url: "https://picsum.photos/500/300",
-              },
-            };
+            this.tasks = [];
           }
-          return (task = changedTask);
-        }
-      });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    async addTask(newTask) {
+      await this.axios
+        .post(API_URL, newTask)
+        .then((res) => {
+          console.log(res.data.message);
+          this.tasks.push(newTask);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
 
-    deleteTask(id) {
-      this.tasks = this.tasks.filter((t) => t.id !== id);
+    async replaceTask(changedTask) {
+      await this.axios
+        .put(API_URL, changedTask)
+        .then((res) => {
+          console.log(res.data.message);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    async deleteTask(id) {
+      await this.axios
+        .delete(API_URL, { data: { _id: id } })
+        .then((res) => {
+          console.log(res.data.message);
+          this.tasks = this.tasks.filter((t) => t._id !== id);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
 
     filterClose(color, completed) {
@@ -102,42 +127,7 @@ export default {
     filtersReset() {
       this.tasks = [];
       this.loading = true;
-      return this.fetchTasksList();
-    },
-
-    randomInteger(min, max) {
-      let rand = min + Math.random() * (max + 1 - min);
-      return Math.floor(rand);
-    },
-
-    async fetchTasksList() {
-      this.axios
-        .get("https://jsonplaceholder.typicode.com/todos?_limit=12")
-        .then((res) => {
-          const json = res.data;
-          setTimeout(() => {
-            for (let key in json) {
-              this.tasks.push({
-                id: json[key].id,
-                name: `Do the task ${json[key].id}`,
-                description: json[key].title,
-                avatar: {
-                  name: "",
-                  type: "",
-                  size: 0,
-                  url: "https://picsum.photos/500/300",
-                },
-                completed: json[key].completed,
-                quadrant:
-                  this.quadrants[
-                    this.randomInteger(0, this.quadrants.length - 1)
-                  ],
-                date: new Date().toLocaleString(),
-              });
-            }
-            this.loading = false;
-          }, 300);
-        });
+      return this.tasksList();
     },
   },
 };
