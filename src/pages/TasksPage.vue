@@ -80,6 +80,10 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+<<<<<<< .merge_file_a11420
+=======
+<<<<<<< HEAD
+>>>>>>> .merge_file_a13996
     },
     async replaceTask(changedTask) {
       await this.axios
@@ -90,6 +94,11 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+<<<<<<< .merge_file_a11420
+=======
+=======
+>>>>>>> 48c5ed8108600ece51cf595d64aea5621b8dcc43
+>>>>>>> .merge_file_a13996
     },
     async addTask(newTask) {
       await this.axios
