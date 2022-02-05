@@ -80,6 +80,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+<<<<<<< HEAD
     },
     async addTask(newTask) {
       await this.axios
@@ -102,8 +103,30 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+=======
+>>>>>>> 48c5ed8108600ece51cf595d64aea5621b8dcc43
     },
-
+    async addTask(newTask) {
+      await this.axios
+        .post(API_URL, newTask)
+        .then((res) => {
+          console.log(res.data.message);
+          this.tasks.push(newTask);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    async replaceTask(changedTask) {
+      await this.axios
+        .put(API_URL, changedTask)
+        .then((res) => {
+          console.log(res.data.message);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     async deleteTask(id) {
       await this.axios
         .delete(API_URL, { data: { _id: id } })
