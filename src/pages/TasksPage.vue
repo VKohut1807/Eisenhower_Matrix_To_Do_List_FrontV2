@@ -81,6 +81,16 @@ export default {
           console.log(error);
         });
     },
+    async replaceTask(changedTask) {
+      await this.axios
+        .put(API_URL, changedTask)
+        .then((res) => {
+          console.log(res.data.message);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     async addTask(newTask) {
       await this.axios
         .post(API_URL, newTask)
@@ -92,7 +102,6 @@ export default {
           console.log(error);
         });
     },
-
     async replaceTask(changedTask) {
       await this.axios
         .put(API_URL, changedTask)
@@ -103,7 +112,6 @@ export default {
           console.log(error);
         });
     },
-
     async deleteTask(id) {
       await this.axios
         .delete(API_URL, { data: { _id: id } })
