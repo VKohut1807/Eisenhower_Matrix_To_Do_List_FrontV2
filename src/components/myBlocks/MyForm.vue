@@ -1,5 +1,6 @@
 <template>
   <v-form ref="form" v-model="valid">
+    <my-overlay :alertWindow="alertWindow" :alertText="alertText" :alertType="alertType" @alertClose="alertClose" />
     <v-card>
       <v-card-title>
         <span class="text-h5">Task</span>
@@ -8,94 +9,46 @@
         <v-container>
           <v-row>
             <v-col cols="12" sm="12" md="12">
-              <v-switch
-                v-if="editDialog"
-                v-model="task.completed"
-                :label="`Completed: ${task.completed}`"
-                inset
-              >
+              <v-switch v-if="editDialog" v-model="task.completed" :label="`Completed: ${task.completed}`" inset>
               </v-switch>
             </v-col>
             <v-col cols="12" sm="6" md="6">
-              <v-text-field
-                v-model.trim="task.name"
-                :color="task.quadrant.colorHex"
-                label="Task Name*"
-                hint="short and clear name"
-                :counter="10"
-                :rules="nameRules"
-              ></v-text-field>
+              <v-text-field v-model.trim="task.name" :color="task.quadrant.colorHex" label="Task Name*"
+                hint="short and clear name" :counter="10" :rules="nameRules"></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" md="6">
-              <v-file-input
-                @change="withoutImg()"
-                v-model="task.avatar"
-                :rules="imgRules"
-                hint="only img files"
-                prepend-icon="mdi-camera"
-                accept="image/*"
-                label="Img input"
-              ></v-file-input>
+              <v-file-input name="fileImage" @change="changeFile" v-model="task.avatar" :rules="imgRules"
+                hint="only img files" prepend-icon="mdi-camera" accept="image/*" label="Img input"></v-file-input>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-                v-model="task.description"
-                :color="task.quadrant.colorHex"
-                label="Task Title*"
-                hint="describe clearly a specific task"
-                :counter="30"
-                :rules="descriptionRules"
-                required
-              ></v-text-field>
+              <v-text-field v-model="task.description" :color="task.quadrant.colorHex" label="Task Title*"
+                hint="describe clearly a specific task" :counter="30" :rules="descriptionRules" required></v-text-field>
             </v-col>
-
             <v-col cols="12" sm="6">
-              <v-select
-                v-model="task.quadrant"
-                :hint="`${task.quadrant.color}, ${task.quadrant.colorHex}`"
-                :color="task.quadrant.colorHex"
-                :items="quadrants"
-                item-text="title"
-                item-value="color"
-                label="Priority"
-                persistent-hint
-                return-object
-                single-line
-              ></v-select>
+              <v-select v-model="task.quadrant" :hint="`${task.quadrant.color}, ${task.quadrant.colorHex}`"
+                :color="task.quadrant.colorHex" :items="quadrants" item-text="title" item-value="color" label="Priority"
+                persistent-hint return-object single-line></v-select>
             </v-col>
           </v-row>
         </v-container>
         <small>*indicates required field</small>
       </v-card-text>
       <v-card-actions>
-        <v-btn @click="resetForm" color="warning " text> Reset form </v-btn>
+        <v-btn @click="resetForm" color="warning " text>Reset form</v-btn>
         <v-spacer></v-spacer>
-        <v-btn @click="close" color="error" text> Close </v-btn>
-        <v-btn
-          v-if="!editDialog"
-          @click="send"
-          :disabled="!valid"
-          color="success"
-          text
-        >
-          Send
-        </v-btn>
-        <v-btn
-          v-else
-          :disabled="!valid"
-          @click="replace()"
-          color="success"
-          text
-        >
-          Replace
-        </v-btn>
+        <v-btn @click="close" color="error" text>Close</v-btn>
+        <v-btn ref="submit" v-if="!editDialog" @click="send" :disabled="!valid" color="success" text>Send</v-btn>
+        <v-btn v-else :disabled="!valid" @click="replace()" color="success" text>Replace</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
 </template>
 
 <script>
+import MyOverlay from "@/components/myBlocks/MyOverlay.vue";
+
 export default {
+  components: { MyOverlay },
   name: "my-form",
   props: {
     editTask: {
@@ -113,8 +66,6 @@ export default {
   },
 
   data: () => ({
-    files: [],
-
     valid: true,
     nameRules: [
       (v) => !!v || "Name is required",
@@ -136,7 +87,6 @@ export default {
         name: "",
         type: "",
         size: 0,
-        url: "",
       },
       quadrant: {
         prioryty: 4,
@@ -145,12 +95,55 @@ export default {
         colorHex: "#A8A8A8",
       },
     },
+    curentFile: null,
+    uniqueName: "",
+    changeImg: false,
+
+    alertWindow: false,
+    alertText: "Only .png, .jpg and .jpeg format allowed!",
+    alertType: "error"
   }),
   mounted() {
     this.editDialogTask();
   },
   methods: {
-    send() {
+    uniqueFileName(uniqueLength) {
+      let result = '';
+      let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      for (let i = 0; i < uniqueLength; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+          characters.length));
+      }
+      return this.uniqueName = result;
+    },
+    changeFile(file) {
+      if (file === null) {
+        this.task.avatar = {
+          name: "",
+          type: "",
+          size: 0,
+        };
+      }
+      else if (file !== null && (
+        file.type === "image/png" ||
+        file.type === "image/jpg" ||
+        file.type === "image/jpeg")) {
+        this.changeImg = true;
+        this.uniqueName = this.uniqueFileName(16);
+        let formData = new FormData();
+        formData.append("fileImage", file, this.uniqueName);
+        this.curentFile = formData;
+      }
+      else {
+        this.task.avatar = {
+          name: "",
+          type: "",
+          size: 0,
+        };
+        this.alertWindow = true;
+      }
+    },
+    async send() {
       if (this.$refs.form.validate()) {
         const newTask = {
           _id: Date.now(),
@@ -158,19 +151,18 @@ export default {
           description: this.task.description,
           completed: false,
           quadrant: this.task.quadrant,
-          date: new Date().toLocaleString("en-GB"),
+          date: new Date(),
           avatar: {
-            name: this.task.avatar.name,
+            name: this.uniqueName,
             type: this.task.avatar.type,
             size: this.task.avatar.size,
-            url: this.task.avatar.url,
           },
         };
-        if (newTask.avatar.size > 0) {
+        if (this.changeImg > 0) {
+          this.$emit("fileUpload", this.curentFile);
           this.fileReaderImg(this.task, newTask);
-        }
+        };
         this.$emit("addTask", newTask);
-        this.resetForm();
       }
     },
     close() {
@@ -178,26 +170,22 @@ export default {
     },
     replace() {
       if (this.$refs.form.validate()) {
-        this.task.date = new Date().toLocaleString();
-        if (this.task.avatar.size > 0) {
+        this.task.date = new Date();
+        if (this.changeImg) {
           this.fileReaderImg(this.task, this.task);
+          this.task.avatar = {
+            name: this.uniqueName,
+            type: this.task.avatar.type,
+            size: this.task.avatar.size,
+          }
+          this.$emit("fileUpload", this.curentFile);
         }
-        return this.$emit("replace", this.task);
+        this.$emit("replace", this.task);
       }
     },
     editDialogTask() {
       if (this.editDialog) {
         this.task = this.editTask;
-      }
-    },
-    withoutImg() {
-      if (this.task.avatar == null) {
-        return (this.task.avatar = {
-          name: "",
-          type: "",
-          size: 0,
-          url: "",
-        });
       }
     },
     resetForm() {
@@ -222,6 +210,9 @@ export default {
         });
       };
     },
+    alertClose(bool) {
+      this.alertWindow = bool;
+    }
   },
 };
 </script>

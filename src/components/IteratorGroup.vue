@@ -1,38 +1,17 @@
 <template>
-  <v-data-iterator
-    :items="tasks"
-    :items-per-page.sync="itemsPerPage"
-    :page.sync="page"
-    :search="search"
-    :sort-by="sortBy.toLowerCase()"
-    :sort-desc="sortDesc"
-    hide-default-footer
-  >
+  <v-data-iterator :items="tasks" :items-per-page.sync="itemsPerPage" :page.sync="page" :search="search"
+    :sort-by="sortBy.toLowerCase()" :sort-desc="sortDesc" hide-default-footer>
     <template v-slot:header>
       <v-toolbar dark color="primary " class="mb-1">
-        <v-text-field
-          v-model="search"
-          clearable
-          flat
-          solo-inverted
-          hide-details
-          prepend-inner-icon="mdi-magnify"
-          label="Search"
-        ></v-text-field>
+        <v-text-field v-model="search" clearable flat solo-inverted hide-details prepend-inner-icon="mdi-magnify"
+          label="Search"></v-text-field>
         <template>
           <v-spacer></v-spacer>
-          <v-select
-            v-model="sortBy"
-            flat
-            solo-inverted
-            hide-details
-            :items="keys"
-            prepend-inner-icon="mdi-magnify"
-            label="Sort by"
-          ></v-select>
+          <v-select v-model="sortBy" flat solo-inverted hide-details :items="keys" prepend-inner-icon="mdi-magnify"
+            label="Sort by"></v-select>
           <v-spacer></v-spacer>
-          <v-btn-toggle v-model="sortDesc" mandatory
-            ><v-btn large depressed color="blue" :value="false">
+          <v-btn-toggle v-model="sortDesc" mandatory>
+            <v-btn large depressed color="blue" :value="false">
               <v-icon>mdi-arrow-down</v-icon>
             </v-btn>
             <v-btn large depressed color="blue" :value="true">
@@ -41,43 +20,23 @@
           </v-btn-toggle>
         </template>
       </v-toolbar>
-      <template v-if="itemsPerPage > 3 && tasks.length">
-        <pagination-and-selection
-          :tasks="tasks"
-          :page="page"
-          :itemsPerPage="itemsPerPage"
-          :itemsPerPageArray="itemsPerPageArray"
-          :numberOfPages="numberOfPages"
-          @nextPage="nextPage"
-          @formerPage="formerPage"
-          @updateItemsPerPage="updateItemsPerPage"
-        />
+      <template v-if="tasks.length > 3">
+        <pagination-and-selection :tasks="tasks" :page="page" :itemsPerPage="itemsPerPage"
+          :itemsPerPageArray="itemsPerPageArray" :numberOfPages="numberOfPages" @nextPage="nextPage"
+          @formerPage="formerPage" @updateItemsPerPage="updateItemsPerPage" />
       </template>
     </template>
 
     <template v-slot:default="props">
       <v-card v-for="(task, index) in props.items" :key="task.id" class="ma-3">
-        <task-one
-          :task="task"
-          :index="index"
-          :quadrants="quadrants"
-          :sortBy="sortBy"
-          @deleteTask="deleteTask"
-          @replaceTask="replaceTask"
-        />
+        <task-one :task="task" :index="index" :quadrants="quadrants" :sortBy="sortBy" @deleteTask="deleteTask"
+          @replaceTask="replaceTask" @fileUpload="fileUpload" />
       </v-card>
     </template>
     <template v-slot:footer v-if="tasks.length">
-      <pagination-and-selection
-        :tasks="tasks"
-        :page="page"
-        :itemsPerPage="itemsPerPage"
-        :itemsPerPageArray="itemsPerPageArray"
-        :numberOfPages="numberOfPages"
-        @nextPage="nextPage"
-        @formerPage="formerPage"
-        @updateItemsPerPage="updateItemsPerPage"
-      />
+      <pagination-and-selection :tasks="tasks" :page="page" :itemsPerPage="itemsPerPage"
+        :itemsPerPageArray="itemsPerPageArray" :numberOfPages="numberOfPages" @nextPage="nextPage"
+        @formerPage="formerPage" @updateItemsPerPage="updateItemsPerPage" />
     </template>
   </v-data-iterator>
 </template>
@@ -141,6 +100,10 @@ export default {
 
     replaceTask(changedTask) {
       return this.$emit("replaceTask", changedTask);
+    },
+
+    fileUpload(file) {
+      this.$emit("fileUpload", file);
     },
 
     nextPage() {

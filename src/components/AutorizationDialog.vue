@@ -1,19 +1,17 @@
 <template>
   <v-dialog v-model="dialog" max-width="400px">
     <v-card v-show="!registration">
-      <my-autorization-form @closeAutorization="closeAutorization()" />
+      <my-autorization-form @login="login" @closeAutorization="closeAutorization()" />
       <small>
         <div class="pa-1 text-center">
           Don't have an account?
           <v-dialog v-model="registration" max-width="400px">
             <template v-slot:activator="{ on, attrs }">
-              <a v-bind="attrs" v-on="on"> registration </a>
+              <a v-bind="attrs" v-on="on">registration</a>
             </template>
             <v-card>
-              <my-autorization-form
-                :registration="registration"
-                @closeAutorization="closeAutorization()"
-              />
+              <my-autorization-form :registration="registration" @registr="registr"
+                @closeAutorization="closeAutorization()" />
             </v-card>
           </v-dialog>
         </div>
@@ -48,6 +46,12 @@ export default {
     },
   },
   methods: {
+    login(user) {
+      this.$emit("login", user);
+    },
+    registr(newUser) {
+      this.$emit("registr", newUser);
+    },
     closeAutorization() {
       if (this.registration) {
         this.registration = false;

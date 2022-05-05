@@ -1,16 +1,10 @@
 <template>
   <v-sheet>
-    <tasks-list
-      :quadrants="quadrants"
-      :tasks="tasks"
-      @deleteTask="deleteTask"
-      @addTask="addTask"
-      @filterClose="filterClose"
-      @filtersReset="filtersReset"
-      @replaceTask="replaceTask"
-    />
+    <tasks-list :quadrants="quadrants" :tasks="tasks" @deleteTask="deleteTask" @addTask="addTask"
+      @fileUpload="fileUpload" @filterClose="filterClose" @filtersReset="filtersReset" @replaceTask="replaceTask" />
     <my-loader v-if="loading" />
     <my-scroll-btn></my-scroll-btn>
+    <my-overlay :alertWindow="alertWindow" :alertText="alertText" :alertType="alertType" @alertClose="alertClose" />
   </v-sheet>
 </template>
 
@@ -18,10 +12,12 @@
 import TasksList from "@/components/TasksList.vue";
 import MyScrollBtn from "@/components/myBlocks/MyScrollBtn.vue";
 import MyLoader from "@/components/myBlocks/MyLoader.vue";
-const API_URL = "http://localhost:4000/tasks";
+import MyOverlay from "@/components/myBlocks/MyOverlay.vue";
+const API_URL_TASKS = "http://localhost:4000/tasks";
+const API_URL_IMG = "http://localhost:4000/tasks/file";
 
 export default {
-  components: { TasksList, MyLoader, MyScrollBtn },
+  components: { TasksList, MyLoader, MyScrollBtn, MyOverlay },
   name: "TasksPage",
   data: () => ({
     tasks: [],
@@ -59,6 +55,9 @@ export default {
       color: "grey",
       colorHex: "#A8A8A8",
     },
+    alertWindow: false,
+    alertText: "",
+    alertType: ""
   }),
   mounted() {
     this.tasksList();
@@ -67,9 +66,8 @@ export default {
   methods: {
     async tasksList() {
       this.axios
-        .get(API_URL)
+        .get(API_URL_TASKS)
         .then((res) => {
-          console.log(res.data);
           this.loading = false;
           if (!res.data.length == 0) {
             this.tasks = res.data;
@@ -81,32 +79,29 @@ export default {
           console.log(error);
         });
     },
-    async replaceTask(changedTask) {
-      await this.axios
-        .put(API_URL, changedTask)
-        .then((res) => {
-          console.log(res.data.message);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
     async addTask(newTask) {
       await this.axios
-        .post(API_URL, newTask)
+        .post(API_URL_TASKS, newTask)
         .then((res) => {
           console.log(res.data.message);
           this.tasks.push(newTask);
+          this.alertWindow = true;
+          this.alertText = res.data.message,
+            this.alertType = "info"
         })
         .catch((error) => {
           console.log(error);
         });
     },
     async replaceTask(changedTask) {
+      console.log("replace", changedTask);
       await this.axios
-        .put(API_URL, changedTask)
+        .put(API_URL_TASKS, changedTask)
         .then((res) => {
           console.log(res.data.message);
+          this.alertWindow = true;
+          this.alertText = res.data.message,
+            this.alertType = "info"
         })
         .catch((error) => {
           console.log(error);
@@ -114,16 +109,28 @@ export default {
     },
     async deleteTask(id) {
       await this.axios
-        .delete(API_URL, { data: { _id: id } })
+        .delete(API_URL_TASKS, { data: { _id: id } })
         .then((res) => {
           console.log(res.data.message);
           this.tasks = this.tasks.filter((t) => t._id !== id);
+          this.alertWindow = true;
+          this.alertText = res.data.message,
+            this.alertType = "info"
         })
         .catch((error) => {
           console.log(error);
         });
     },
-
+    async fileUpload(file) {
+      await this.axios
+        .post(API_URL_IMG, file)
+        .then((res) => {
+          console.log(res.data.message);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     filterClose(color, completed) {
       this.tasks = this.tasks.filter(
         (task) =>
@@ -131,12 +138,14 @@ export default {
           task.completed === !completed
       );
     },
-
     filtersReset() {
       this.tasks = [];
       this.loading = true;
       return this.tasksList();
     },
+    alertClose(bool) {
+      this.alertWindow = bool;
+    }
   },
 };
 </script>

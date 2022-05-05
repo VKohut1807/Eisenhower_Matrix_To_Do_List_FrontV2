@@ -1,117 +1,55 @@
 <template>
-  <v-form ref="form" v-model="valid" @submit.prevent="login()">
+  <v-form ref="form" v-model="valid">
     <v-card-title class="text-center d-flex flex-column">
-      <div class="text-h4 text-center">
-        {{ !registration ? "Enter" : "Registration" }}
-      </div>
+      <div class="text-h4 text-center">{{ !registration ? "Enter" : "Registration" }}</div>
     </v-card-title>
     <v-card-text>
       <v-container>
         <v-row>
-          <v-col cols="12" v-show="registration">
-            <v-text-field
-              v-model="user.name"
-              :rules="[rules.required, rules.min]"
-              label="Name"
-              prepend-icon="mdi-account"
-              counter
-              required
-            ></v-text-field>
+          <v-col cols="12" v-if="registration">
+            <v-text-field v-model="user.name" :rules="[rules.required, rules.min]" label="Name"
+              prepend-icon="mdi-account" counter required></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-text-field
-              v-model="user.email"
-              :rules="[rules.required, rules.email]"
-              label="E-mail"
-              prepend-icon="mdi-email"
-              required
-            ></v-text-field>
+            <v-text-field v-model="user.email" :rules="[rules.required, rules.email]" label="E-mail"
+              prepend-icon="mdi-email" required></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-text-field
-              v-model="user.password"
-              @click:append="show = !show"
-              :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-              :rules="[rules.required, rules.min]"
-              :type="show ? 'text' : 'password'"
-              label="Password"
-              prepend-icon="mdi-lock"
-              counter
-              required
-            ></v-text-field>
+            <v-text-field v-model="user.password" @click:append="show = !show"
+              :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required, rules.min]"
+              :type="show ? 'text' : 'password'" label="Password" prepend-icon="mdi-lock" counter required>
+            </v-text-field>
           </v-col>
-          <v-col cols="12" v-show="registration">
-            <v-text-field
-              v-model="user.passwordRepeat"
-              @click:append="showR = !showR"
-              :append-icon="showR ? 'mdi-eye' : 'mdi-eye-off'"
-              :rules="[rules.required]"
-              :type="showR ? 'text' : 'password'"
-              label="Repeat Password"
-              :hint="passwordsEntered()"
-              prepend-icon="mdi-lock"
-              counter
-              required
-            ></v-text-field>
+          <v-col cols="12" v-if="registration">
+            <v-text-field v-model="user.passwordRepeat" @click:append="showR = !showR"
+              :append-icon="showR ? 'mdi-eye' : 'mdi-eye-off'" :rules="[rules.required]"
+              :type="showR ? 'text' : 'password'" label="Repeat Password" :hint="passwordsEntered()"
+              prepend-icon="mdi-lock" counter required></v-text-field>
           </v-col>
-          <v-col cols="12" v-show="registration">
-            <v-checkbox
-              v-model="user.checkbox"
-              :rules="[rules.required]"
-              prepend-icon="mdi-security"
-            >
+          <v-col cols="12" v-if="registration">
+            <v-checkbox v-model="user.checkbox" :rules="[rules.required]" prepend-icon="mdi-security">
               <template v-slot:label>
                 <div>
                   Do you accept the
-                  <v-dialog
-                    v-model="dialogConsent"
-                    width="75%"
-                    transition="dialog-top-transition"
-                  >
+                  <v-dialog v-model="dialogConsent" width="75%" transition="dialog-top-transition">
                     <template v-slot:activator="{ on, attrs }">
-                      <a
-                        v-bind="attrs"
-                        v-on="on"
-                        @click.prevent="termsSelectConsent = false"
-                        >conditions</a
-                      >
+                      <a v-bind="attrs" v-on="on" @click.prevent="termsSelectConsent = false">conditions</a>
                       and
-                      <a
-                        v-bind="attrs"
-                        v-on="on"
-                        @click.prevent="termsSelectConsent = true"
-                        >terms</a
-                      >
+                      <a v-bind="attrs" v-on="on" @click.prevent="termsSelectConsent = true">terms</a>
                     </template>
-                    <my-consent
-                      :termsSelectConsent="termsSelectConsent"
-                      @closeConsent="closeConsent"
-                    /> </v-dialog
-                  >?
+                    <my-consent :termsSelectConsent="termsSelectConsent" @closeConsent="closeConsent" />
+                  </v-dialog>?
                 </div>
               </template>
             </v-checkbox>
           </v-col>
           <v-col cols="12">
             <div class="d-flex justify-center">
-              <v-btn
-                @click="closeAutorization()"
-                color="error"
-                min-width="50%"
-                rounded
-                text
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                :disabled="!valid"
-                color="primary"
-                type="submit"
-                min-width="50%"
-                rounded
-              >
-                {{ !registration ? "Login" : "Registration" }}
-              </v-btn>
+              <v-btn @click="closeAutorization()" color="error" min-width="50%" rounded text>Cancel</v-btn>
+              <v-btn v-show="!registration" @click="login" :disabled="!valid" color="primary" min-width="50%" rounded>
+                Login</v-btn>
+              <v-btn v-show="registration" @click="registr" :disabled="!valid" color="primary" min-width="50%" rounded>
+                Registration</v-btn>
             </div>
           </v-col>
         </v-row>
@@ -133,9 +71,7 @@ export default {
   data: () => ({
     termsSelectConsent: false,
     dialogConsent: false,
-
     valid: true,
-
     user: {
       name: "",
       email: "",
@@ -158,18 +94,23 @@ export default {
 
   methods: {
     login() {
-      if (this.$refs.form.validate()) {
-        if (this.registration) {
-          console.log("SEND_TO_SERWER__new_USER", this.user);
-        } else {
-          this.user = {
-            email: this.user.email,
-            password: this.user.password,
-          };
-          console.log("SEND_TO_SERWER__login", this.user);
-        }
-        this.resetForm();
-      }
+      this.user = {
+        email: this.user.email,
+        password: this.user.password,
+      };
+      this.$emit("login", this.user);
+      this.resetForm();
+    },
+    registr() {
+      const newUser = {
+        _id: Date.now(),
+        name: this.user.name,
+        email: this.user.email,
+        password: this.user.password,
+        checkbox: this.user.checkbox,
+      };
+      this.$emit("registr", newUser);
+      this.resetForm();
     },
     resetForm() {
       this.user = {

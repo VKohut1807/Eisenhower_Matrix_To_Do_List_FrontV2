@@ -1,5 +1,5 @@
 <template>
-  <v-row class="ma-2" align="center" justify="center" v-model="tasks">
+  <v-row class="ma-2" justify="center" v-model="tasks">
     <span class="grey--text">Items per page</span>
     <v-menu offset-y>
       <template v-slot:activator="{ on, attrs }">
@@ -9,11 +9,7 @@
         </v-btn>
       </template>
       <v-list>
-        <v-list-item
-          v-for="(number, index) in itemsPerPageArray"
-          :key="index"
-          @click="updateItemsPerPage(number)"
-        >
+        <v-list-item v-for="(number, index) in itemsPerPageArray" :key="index" @click="updateItemsPerPage(number)">
           <v-list-item-title>{{ number }}</v-list-item-title>
         </v-list-item>
       </v-list>

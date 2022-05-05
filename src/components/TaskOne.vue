@@ -12,16 +12,10 @@
           <v-spacer></v-spacer>
         </v-list-item-content>
 
-        <v-list-item-avatar :color="task.quadrant.colorHex" tile size="80"
-          ><v-dialog width="75%" transition="dialog-top-transition">
+        <v-list-item-avatar :color="task.quadrant.colorHex" tile size="80">
+          <v-dialog width="75%" transition="dialog-top-transition">
             <template v-slot:activator="{ on, attrs }">
-              <v-list-item-avatar
-                v-bind="attrs"
-                v-on="on"
-                size="65"
-                color="white"
-                class="mx-auto pointer"
-              >
+              <v-list-item-avatar v-bind="attrs" v-on="on" size="65" color="white" class="mx-auto pointer">
                 <v-img :src="task.avatar.url"></v-img>
               </v-list-item-avatar>
             </template>
@@ -30,33 +24,17 @@
         </v-list-item-avatar>
       </div>
       <div class="d-flex justify-space-between align-center">
-        <p class="ma-0">{{ task.date }}</p>
+        <p class="ma-0">{{ new Date(task.date).toLocaleString() }}</p>
         <v-spacer></v-spacer>
-        <v-dialog
-          v-if="sortBy.toLowerCase() == 'id'"
-          v-model="dialog"
-          persistent
-          max-width="600px"
-        >
+        <v-dialog v-if="sortBy.toLowerCase() == 'id'" v-model="dialog" persistent max-width="600px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" text color="warning">Edit</v-btn>
           </template>
-          <my-form
-            :quadrants="quadrants"
-            :editDialog="editDialog"
-            :editTask="task"
-            @replace="replaceTask"
-            @close="close"
-          />
+          <my-form :quadrants="quadrants" :editDialog="editDialog" :editTask="task" @replace="replaceTask"
+            @fileUpload="fileUpload" @close="close" />
         </v-dialog>
-        <v-btn
-          v-on:click="task.completed = !task.completed"
-          @click="$emit('deleteTask', task._id)"
-          text
-          color="error"
-          class="px-0"
-          >Delete</v-btn
-        >
+        <v-btn v-on:click="task.completed = !task.completed" @click="$emit('deleteTask', task._id)" text color="error"
+          class="px-0">Delete</v-btn>
       </div>
     </v-row>
   </v-list-item>
@@ -90,13 +68,6 @@ export default {
     dialog: false,
     editDialog: true,
     dialogImg: false,
-
-    avatar: {
-      name: "",
-      type: "",
-      size: 0,
-      url: "",
-    },
   }),
   methods: {
     close() {
@@ -105,6 +76,9 @@ export default {
     replaceTask(changedTask) {
       this.dialog = false;
       this.$emit("replaceTask", changedTask);
+    },
+    fileUpload(file) {
+      this.$emit("fileUpload", file);
     },
   },
 };
