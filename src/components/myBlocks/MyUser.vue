@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" width="200">
+  <v-card class="mx-auto pb-1" width="200">
     <v-card-text>
       <v-row align="center">
         <v-col class="text-h2" cols="8">
@@ -17,7 +17,7 @@
         <span class="ml-3">{{ user.email || "email" }}</span>
       </v-card-subtitle>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions v-show="user.name">
       <v-list>
         <v-list-item v-for="item in items" :key="item.title" link class="px-1">
           <v-list-item-icon>
@@ -31,7 +31,7 @@
       </v-list>
     </v-card-actions>
 
-    <div class="pa-2">
+    <div v-show="user.name" class="pa-2">
       <v-btn block color="primary" @click="$emit('logout')">Logout</v-btn>
     </div>
   </v-card>

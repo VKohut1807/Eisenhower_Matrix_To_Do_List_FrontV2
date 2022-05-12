@@ -6,7 +6,11 @@
     <template>
       <v-img max-height="35" max-width="35" src="../../../public/logo.png"></v-img>
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon class="hidden-sm-and-up"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon class="hidden-sm-and-up" @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-navigation-drawer v-model="drawer" absolute left hide-overlay height="300px">
+        <navigation-drawer :user="user" :userDate="userDate" :menuItems="menuItems" @logout="logout"
+          @autorization="autorization" />
+      </v-navigation-drawer>
       <v-toolbar-items class="hidden-xs-only">
         <v-btn text v-for="item in menuItems" :key="item.id" :to="item.link" color="blue"
           @click="autorization(item.active)">
@@ -32,12 +36,13 @@
 import AutorizationDialog from "@/components/AutorizationDialog.vue";
 import MyUser from "@/components/myBlocks/MyUser.vue";
 import MyOverlay from "@/components/myBlocks/MyOverlay.vue";
+import NavigationDrawer from "@/components/NavigationDrawer.vue";
 const API_URL_LOGIN = "http://localhost:4000/login";
 const API_URL_REGISTR = "http://localhost:4000/registration";
 const API_URL_USER = "http://localhost:4000/user";
 const API_URL_LOGOUT = "http://localhost:4000/logout";
 export default {
-  components: { AutorizationDialog, MyUser, MyOverlay },
+  components: { AutorizationDialog, MyUser, MyOverlay, NavigationDrawer },
   data: () => ({
     dialog: false,
     userDate: {
@@ -73,7 +78,8 @@ export default {
     user: {},
     alertWindow: false,
     alertText: "",
-    alertType: ""
+    alertType: "",
+    drawer: false
   }),
   mounted() {
     this.getUser()
@@ -167,7 +173,7 @@ export default {
     },
     alertClose(bool) {
       this.alertWindow = bool;
-    }
+    },
   }
 };
 </script>
