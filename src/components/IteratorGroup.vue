@@ -71,7 +71,6 @@ export default {
       "Completed",
       "Date",
       "Description",
-      "Quadrant.prioryty",
     ],
 
     page: 1,
